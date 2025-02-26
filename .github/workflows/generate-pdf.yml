@@ -1,0 +1,37 @@
+name: Generate PDF
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'resume.md'
+      - '.github/workflows/generate-pdf.yml'
+      - 'style.css'
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Pandoc
+        run: sudo apt-get install -y pandoc texlive-latex-base texlive-fonts-recommended texlive-latex-extra
+
+      - name: Create output directory
+        run: mkdir -p out
+
+      - name: Generate PDF
+        run: |
+          pandoc resume.md \
+            -f markdown \
+            -t pdf \
+            -o out/resume.pdf \
+            --css style.css \
+            --pdf-engine=pdflatex
+
+      - name: Upload PDF file
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume
+          path: out/resume.pdf
